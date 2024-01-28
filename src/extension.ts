@@ -1,26 +1,54 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
+import { TreeDocs } from './providers/TreeDataProvider/tree.docs';
+import { TreeColor } from './providers/FileDecorationProvider/tree.color';
+import { mkdirExistsOrCreate } from './utils/fs';
+import { FOLDER_DOCS } from './constants/paths';
+import { EXTENSION_FILE } from './constants/ext';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  const subs = context.subscriptions;
+  const treeDocs = new TreeDocs();
+  const treeColor = new TreeColor(context);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "code-docs" is now active!');
+  subs.push(vscode.window.registerTreeDataProvider('all-docs-id', treeDocs));
+  subs.push(vscode.window.registerFileDecorationProvider(treeColor));
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('code-docs.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Code Docs!');
-	});
+  subs.push(
+    vscode.commands.registerCommand('code-docs.fromCurrentFile', () => {
+      if (!vscode.window.activeTextEditor)
+        return vscode.window.showInformationMessage(
+          'You do not have a file open'
+        );
+      // TODO navigate to README file.
+    })
+  );
 
-	context.subscriptions.push(disposable);
+  subs.push(
+    vscode.commands.registerCommand(
+      'code-docs.openDocs',
+      async (item: vscode.TreeItem) => {
+        const itemURI = item.resourceUri!;
+        const pathFile = TreeDocs.getRelativePath(itemURI.fsPath);
+        const pathDoc = path.join(
+          context.extensionPath,
+          FOLDER_DOCS,
+          `${pathFile}.${EXTENSION_FILE}`
+        );
+
+        if (!mkdirExistsOrCreate(path.dirname(pathDoc)))
+          fs.writeFileSync(pathDoc, `# Docs \`${item.label}\``, {
+            encoding: 'utf-8',
+          });
+
+        vscode.window.showTextDocument(vscode.Uri.file(pathDoc), {
+          preview: true,
+        });
+        treeColor.updateFile(itemURI);
+      }
+    )
+  );
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
