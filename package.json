@@ -14,8 +14,51 @@
   "contributes": {
     "commands": [
       {
-        "command": "code-docs.helloWorld",
-        "title": "Hello World"
+        "command": "code-docs.fromCurrentFile",
+        "title": "Code Docs: Current File"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "code-docs-id",
+          "title": "Code Docs",
+          "icon": "resources/icon/code-docs.svg"
+        }
+      ]
+    },
+    "views": {
+      "code-docs-id": [
+        {
+          "id": "all-docs-id",
+          "name": "Docs",
+          "type": "tree"
+        },
+        {
+          "id": "docs-outline-id",
+          "name": "Outline",
+          "initialSize": 0
+        }
+      ]
+    },
+    "colors": [
+      {
+        "id": "codeDocsDocumentedFile",
+        "description": "",
+        "defaults": {
+          "dark": "#6CF99B",
+          "light": "#6CF99B",
+          "highContrast": "#6CF99B"
+        }
+      },
+      {
+        "id": "codeDocsUndocumentedFile",
+        "description": "",
+        "defaults": {
+          "dark": "#F9826C",
+          "light": "#F9826C",
+          "highContrast": "#F9826C"
+        }
       }
     ]
   },
