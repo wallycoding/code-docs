@@ -37,7 +37,9 @@ export function activate(context: vscode.ExtensionContext) {
           `${pathFile}.${EXTENSION_FILE}`
         );
 
-        if (!mkdirExistsOrCreate(path.dirname(pathDoc)))
+        const hasExists = mkdirExistsOrCreate(pathDoc);
+
+        if (!hasExists)
           fs.writeFileSync(pathDoc, `# Docs \`${item.label}\``, {
             encoding: 'utf-8',
           });
