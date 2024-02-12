@@ -13,6 +13,12 @@ export function activate(context: vscode.ExtensionContext) {
   const treeColor = new TreeColor(context);
 
   subs.push(vscode.window.registerTreeDataProvider('all-docs-id', treeDocs));
+
+  const refreshTreeFiles = treeDocs.refresh.bind(treeDocs);
+  subs.push(vscode.workspace.onDidCreateFiles(refreshTreeFiles));
+  subs.push(vscode.workspace.onDidDeleteFiles(refreshTreeFiles));
+  subs.push(vscode.workspace.onDidRenameFiles(refreshTreeFiles));
+
   subs.push(vscode.window.registerFileDecorationProvider(treeColor));
 
   subs.push(
