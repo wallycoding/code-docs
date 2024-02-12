@@ -7,9 +7,13 @@ type TreeDataProvider = vscode.TreeDataProvider<vscode.TreeItem>;
 
 class TreeDocsEmitter {
   private _onDidChangeTreeData = new vscode.EventEmitter<
-    vscode.TreeItem | undefined
+    vscode.TreeItem | undefined | null
   >();
   public onDidChangeTreeData = this._onDidChangeTreeData.event;
+
+  refresh() {
+    this._onDidChangeTreeData.fire(null);
+  }
 }
 
 export class TreeDocs extends TreeDocsEmitter implements TreeDataProvider {
