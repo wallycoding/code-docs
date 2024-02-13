@@ -1,16 +1,13 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { TreeDocs } from './providers/TreeDataProvider/tree.docs';
 import { TreeColor } from './providers/FileDecorationProvider/tree.color';
-import { mkdirExistsOrCreate } from './utils/fs';
-import { FOLDER_DOCS } from './constants/paths';
-import { EXTENSION_FILE } from './constants/ext';
+import Commands from './commands';
 
 export function activate(context: vscode.ExtensionContext) {
   const subs = context.subscriptions;
   const treeDocs = new TreeDocs();
   const treeColor = new TreeColor(context);
+  const commands = new Commands({ treeDocs, treeColor, context });
 
   subs.push(vscode.window.registerTreeDataProvider('all-docs-id', treeDocs));
 
@@ -34,27 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
   subs.push(
     vscode.commands.registerCommand(
       'code-docs.openDocs',
-      async (item: vscode.TreeItem) => {
-        const itemURI = item.resourceUri!;
-        const pathFile = TreeDocs.getRelativePath(itemURI.fsPath);
-        const pathDoc = path.join(
-          context.extensionPath,
-          FOLDER_DOCS,
-          `${pathFile}.${EXTENSION_FILE}`
-        );
-
-        const hasExists = mkdirExistsOrCreate(pathDoc);
-
-        if (!hasExists)
-          fs.writeFileSync(pathDoc, `# Docs \`${item.label}\``, {
-            encoding: 'utf-8',
-          });
-
-        vscode.window.showTextDocument(vscode.Uri.file(pathDoc), {
-          preview: true,
-        });
-        treeColor.updateFile(itemURI);
-      }
+      commands.get('openDocs')
     )
   );
 }

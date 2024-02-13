@@ -5,7 +5,7 @@ import { isDirectory } from '../../utils/fs';
 
 type TreeDataProvider = vscode.TreeDataProvider<vscode.TreeItem>;
 
-class TreeDocsEmitter {
+class BaseTreeDocs {
   private _onDidChangeTreeData = new vscode.EventEmitter<
     vscode.TreeItem | undefined | null
   >();
@@ -14,14 +14,12 @@ class TreeDocsEmitter {
   refresh() {
     this._onDidChangeTreeData.fire(null);
   }
-}
 
-export class TreeDocs extends TreeDocsEmitter implements TreeDataProvider {
   static firstWorkspace() {
     return vscode.workspace.workspaceFolders?.at(0)?.uri.fsPath;
   }
 
-  static getRelativePath(pathname: string) {
+  static getWorkspaceRelativePath(pathname: string) {
     const first = this.firstWorkspace();
     if (!first) return pathname;
     return path.relative(path.dirname(first), pathname);
@@ -57,6 +55,9 @@ export class TreeDocs extends TreeDocsEmitter implements TreeDataProvider {
 
     return [...folders, ...filenames];
   }
+}
+
+export class TreeDocs extends BaseTreeDocs implements TreeDataProvider {
 
   getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
     return element;
@@ -64,7 +65,7 @@ export class TreeDocs extends TreeDocsEmitter implements TreeDataProvider {
 
   getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
     const directory = TreeDocs.firstWorkspace();
-    if (element?.collapsibleState !== 1 && directory) {
+    if (element?.collapsibleState !== vscode.TreeItemCollapsibleState.Collapsed && directory) {
       return TreeDocs.fromDirectory(directory);
     }
 

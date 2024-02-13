@@ -28,7 +28,7 @@ export class TreeColor
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.FileDecoration> {
     if (!uri.fsPath) return;
-    const pathFile = TreeDocs.getRelativePath(uri.fsPath);
+    const pathFile = TreeDocs.getWorkspaceRelativePath(uri.fsPath);
     const pathDoc = path.join(
       this.context.extensionPath,
       FOLDER_DOCS,
